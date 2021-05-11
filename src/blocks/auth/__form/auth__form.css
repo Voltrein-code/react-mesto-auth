@@ -1,0 +1,5 @@
+.auth__form {
+  display: flex;
+  width: 358px;
+  flex-direction: column;
+}

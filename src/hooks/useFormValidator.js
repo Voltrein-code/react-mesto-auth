@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 export default function useFormValidator() {
 
@@ -10,6 +10,7 @@ export default function useFormValidator() {
     const target = e.target;
     const name = e.target.name;
     const value = e.target.value;
+    
 
     setValues({
       ...values,
@@ -21,7 +22,7 @@ export default function useFormValidator() {
       [name]: target.validationMessage,
     })
 
-    setElementValid(target.closest('.popup__container').checkValidity());
+    setElementValid(target.closest('.form').checkValidity());
   }
 
   const resetFormInputs = React.useCallback(
@@ -31,11 +32,11 @@ export default function useFormValidator() {
       setElementValid(defaultValidState);
     }, [setValues, setErrors, setElementValid]);
 
-    return {
-      values,
-      errors,
-      isElementValid,
-      handleElementChange,
-      resetFormInputs
-    };
+  return {
+    values,
+    errors,
+    isElementValid,
+    handleElementChange,
+    resetFormInputs
+  };
 }

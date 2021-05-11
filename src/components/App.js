@@ -1,4 +1,5 @@
 import React from 'react';
+import { Route, Switch, useHistory, Redirect } from 'react-router-dom';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -9,6 +10,12 @@ import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import DeletePopup from './DeletePopup';
 import api from '../utils/api';
+import Login from './Login';
+import Register from './Register';
+import ProtectedRoute from './ProtectedRoute';
+import InfoToolTip from './InfoToolTip';
+
+import { authorize, checkToken, register } from '../utils/auth';
 
 export default function App() {
 
@@ -16,6 +23,7 @@ export default function App() {
   const [isEditProfilePopupOpen, setEditProfileState] = React.useState(false);
   const [isAddPlacePopupOpen, setAddPlaceState] = React.useState(false);
   const [isImagePopupOpen, setImagePopupState] = React.useState(false);
+  const [isSignUpPopupOpen, setSignUpPopupOpen] = React.useState(false);
   const [isDeletePopupOpen, setDeletePopupState] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState({});
   const [currentUser, setCurrentUser] = React.useState({});
@@ -23,6 +31,11 @@ export default function App() {
   const [isAvatarLoading, setAvatarLoading] = React.useState(false);
   const [isUserInfoLoading, setUserInfoLoading] = React.useState(false);
   const [isButtonSubmitLoading, setButtonSubmitLoading] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [userData, setUserData] = React.useState({});
+  const [isSuccess, setIsSuccess] = React.useState(false);
+
+  const history = useHistory();
 
   React.useEffect(() => {
     setAvatarLoading(true);
@@ -42,13 +55,13 @@ export default function App() {
 
   React.useEffect(() => {
     api.getCards()
-    .then((data) => {
-      setCards(data);
-    })
-    .catch((err) => {
-      console.log(err);
-    })
-  },[])
+      .then((data) => {
+        setCards(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }, [])
 
   function handleCardClick(card) {
     setSelectedCard(card);
@@ -73,6 +86,7 @@ export default function App() {
     setAddPlaceState(false);
     setImagePopupState(false);
     setDeletePopupState(false);
+    setSignUpPopupOpen(false);
     setSelectedCard({});
   }
 
@@ -159,26 +173,125 @@ export default function App() {
     setDeletePopupState(true);
   }
 
+  function handleRegister(data) {
+    register(data)
+      .then((res) => {
+        if (res) {
+          setIsSuccess(true);
+          setSignUpPopupOpen(true);
+          history.push('/sign-in');
+        }
+      })
+      .catch((err) => {
+        setSignUpPopupOpen(true);
+        setIsSuccess(false);
+
+        if (err === 400) {
+          console.log('некоректно заполено одно из полей');
+        }
+      })
+  }
+
+  function handleLogin(data) {
+    authorize(data)
+      .then((res) => {
+        if (res.token) {
+          setIsLoggedIn(true);
+          setUserData(data);
+          localStorage.setItem('jwt', res.token);
+          history.push('/');
+        }
+      })
+      .catch((err) => {
+        switch (err) {
+          case 400:
+            console.log('не передано одно из полей');
+            break;
+          case 401:
+            console.log('пользователь с email не найден');
+            break;
+          default:
+            break;
+        }
+      })
+  }
+
+  function handleSignOut() {
+    localStorage.removeItem('jwt');
+    history.push('/sign-in');
+    setIsLoggedIn(false);
+  }
+
+  React.useEffect(() => {
+    const jwt = localStorage.getItem('jwt');
+    if(jwt) {
+      checkToken(jwt)
+      .then((res) => {
+        setIsLoggedIn(true);
+        setUserData(res.data);
+        history.push('/');
+      })
+      .catch((err) => {
+        switch (err) {
+          case 400:
+            console.log('Токен не передан или передан не в том формате');
+            break;
+          case 401:
+            console.log('Переданный токен некорректен ');
+            break;
+          default:
+            break;
+        }
+      })
+    }
+  }, [history]);
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
 
       <div className="page">
 
-        <Header />
-
-        <Main
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick}
-          onCardLike={handleCardLike}
-          onCardDeleteClick={handleCardDeleteClick}
-          cards={cards}
-          isAvatarLoading={isAvatarLoading}
-          isUserInfoLoading={isUserInfoLoading}
+        <Header 
+          userData={userData}
+          onSignOut={handleSignOut}
         />
 
-        <Footer />
+        <Switch>
+
+          <ProtectedRoute exact path='/' isLoggedIn={isLoggedIn}>
+            <Main
+              onEditProfile={handleEditProfileClick}
+              onAddPlace={handleAddPlaceClick}
+              onEditAvatar={handleEditAvatarClick}
+              onCardClick={handleCardClick}
+              onCardLike={handleCardLike}
+              onCardDeleteClick={handleCardDeleteClick}
+              cards={cards}
+              isAvatarLoading={isAvatarLoading}
+              isUserInfoLoading={isUserInfoLoading}
+            />
+
+            <Footer />
+          </ProtectedRoute>
+
+          <Route path='/sign-up'>
+            <Register
+              onSubmit={handleRegister}
+            />
+          </Route>
+
+          <Route path='/sign-in'>
+
+            <Login 
+              onSubmit={handleLogin}
+            />
+          </Route>
+
+          <Route>
+            {isLoggedIn ? <Redirect to='/' /> : <Redirect to='/sign-in' />}
+          </Route>
+
+        </Switch>
 
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
@@ -195,10 +308,10 @@ export default function App() {
         />
 
         <EditAvatarPopup
-        isOpen={isEditAvatarPopupOpen}
-        onClose={closeAllPopups}
-        onUpdateAvatar={handleUpdateAvatar}
-        isLoading={isButtonSubmitLoading}
+          isOpen={isEditAvatarPopupOpen}
+          onClose={closeAllPopups}
+          onUpdateAvatar={handleUpdateAvatar}
+          isLoading={isButtonSubmitLoading}
         />
 
         <DeletePopup
@@ -212,6 +325,12 @@ export default function App() {
         <ImagePopup
           isOpen={isImagePopupOpen}
           card={selectedCard}
+          onClose={closeAllPopups}
+        />
+
+        <InfoToolTip
+          isOpen={isSignUpPopupOpen}
+          isSuccess={isSuccess}
           onClose={closeAllPopups}
         />
 
