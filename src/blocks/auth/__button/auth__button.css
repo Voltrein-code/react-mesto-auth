@@ -15,3 +15,12 @@
   transition: opacity 0.5s linear;
   cursor: pointer;
 }
+
+@media screen and (max-width: 550px) {
+  .auth__button {
+    font-size: 16px;
+    line-height: 19px;
+    height: 46px;
+    margin: 143px 0 0 0;
+  }
+}
