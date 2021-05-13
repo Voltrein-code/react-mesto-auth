@@ -1,6 +1,7 @@
 .header__menu {
   display: flex;
   flex-direction: row;
+  display: flex;
 }
 
 @media screen and (max-width: 550px){

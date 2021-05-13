@@ -23,6 +23,7 @@ function Header(props) {
         onSignOut={handleSignOut}
         isOpen={hamburgerMenuOpen}
       />
+      
       <div className='header__main'>
 
         <a href="." target="_top">
