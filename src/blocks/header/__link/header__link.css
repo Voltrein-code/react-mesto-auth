@@ -3,6 +3,12 @@
   line-height: 34px;
   color: white;
   text-decoration: none;
+  opacity: 1;
+  transition: opacity 0.5s linear;
+}
+
+.header__link:hover {
+  opacity: 0.6;
 }
 
 @media screen and (max-width: 550px) {

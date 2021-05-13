@@ -8,6 +8,13 @@
   height: fit-content;
   margin-left: 24px;
   padding: 0;
+  opacity: 1;
+  transition: opacity 0.5s linear;
+  cursor: pointer;
+}
+
+.header__sign-out:hover {
+  opacity: 0.6;
 }
 
 @media screen and (max-width: 550px){
