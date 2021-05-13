@@ -15,13 +15,15 @@ export default function Login(props) {
   function handleSubmit(e) {
     e.preventDefault();
 
-    props.onSubmit(values);
-    resetFormInputs();
+    props.onSignIn(values);
+    if(props.isLoggedIn) {
+      resetFormInputs();
+    }
   }
 
   return (
     <AuthForm
-      submitButtonText='Войти'
+      submitButtonText={props.isLoading ? 'Загрузка...' : 'Войти'}
       title='Вход'
       isValid={isElementValid}
       onSubmit={handleSubmit}

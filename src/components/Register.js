@@ -14,14 +14,16 @@ export default function Register(props) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    props.onSubmit(values)
-
-    resetFormInputs();
+    
+    props.onSignUp(values)
+    if(props.isSuccess) {
+      resetFormInputs();
+    }
   }
 
   return (
     <AuthForm
-      submitButtonText='Зарегистрироваться'
+      submitButtonText={props.isLoading ? 'Загрузка...' : 'Зарегистрироваться'}
       title='Регистрация'
       isValid={isElementValid}
       onSubmit={handleSubmit}

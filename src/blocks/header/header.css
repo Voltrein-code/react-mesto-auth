@@ -1,5 +1,6 @@
 .header {
   display: flex;
+  flex-direction: row-reverse;
   justify-content: space-between;
   padding-top: 45px;
   border-bottom: 1px solid rgba(84, 84, 84, 0.7);
@@ -7,6 +8,7 @@
 
 @media screen and (max-width: 550px){
   .header {
-    margin-top: 28px;
+    padding-top: 0;
+    flex-direction: column;
   }
 }

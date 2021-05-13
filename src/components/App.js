@@ -23,7 +23,7 @@ export default function App() {
   const [isEditProfilePopupOpen, setEditProfileState] = React.useState(false);
   const [isAddPlacePopupOpen, setAddPlaceState] = React.useState(false);
   const [isImagePopupOpen, setImagePopupState] = React.useState(false);
-  const [isSignUpPopupOpen, setSignUpPopupOpen] = React.useState(false);
+  const [isToolTipPopupOpen, setToolTipPopupOpen] = React.useState(false);
   const [isDeletePopupOpen, setDeletePopupState] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState({});
   const [currentUser, setCurrentUser] = React.useState({});
@@ -86,7 +86,7 @@ export default function App() {
     setAddPlaceState(false);
     setImagePopupState(false);
     setDeletePopupState(false);
-    setSignUpPopupOpen(false);
+    setToolTipPopupOpen(false);
     setSelectedCard({});
   }
 
@@ -129,8 +129,7 @@ export default function App() {
 
     api.changeLikeCardStatus(isLiked, card._id)
       .then((updateCard) => {
-        const updatedCards = cards.map((c) => (c._id === card._id ? updateCard : c))
-        setCards(updatedCards);
+        setCards((cards) => cards.map((c) => (c._id === card._id ? updateCard : c)))
       })
       .catch((err) => {
         console.log(err);
@@ -141,8 +140,7 @@ export default function App() {
     setButtonSubmitLoading(true);
     api.deleteCard(card._id)
       .then(() => {
-        const updatedCards = cards.filter((c) => (c._id !== card._id))
-        setCards(updatedCards)
+        setCards((cards) => cards.filter((c) => (c._id !== card._id)))
         closeAllPopups();
       })
       .catch((err) => {
@@ -174,25 +172,30 @@ export default function App() {
   }
 
   function handleRegister(data) {
+    setButtonSubmitLoading(true);
     register(data)
       .then((res) => {
         if (res) {
           setIsSuccess(true);
-          setSignUpPopupOpen(true);
+          setToolTipPopupOpen(true);
           history.push('/sign-in');
         }
       })
       .catch((err) => {
-        setSignUpPopupOpen(true);
+        setToolTipPopupOpen(true);
         setIsSuccess(false);
 
         if (err === 400) {
           console.log('некоректно заполено одно из полей');
         }
       })
+      .finally(() => {
+        setButtonSubmitLoading(false);
+      })
   }
 
   function handleLogin(data) {
+    setButtonSubmitLoading(true);
     authorize(data)
       .then((res) => {
         if (res.token) {
@@ -203,6 +206,8 @@ export default function App() {
         }
       })
       .catch((err) => {
+        setIsSuccess(false);
+        setToolTipPopupOpen(true);
         switch (err) {
           case 400:
             console.log('не передано одно из полей');
@@ -213,6 +218,9 @@ export default function App() {
           default:
             break;
         }
+      })
+      .finally(() => {
+        setButtonSubmitLoading(false);
       })
   }
 
@@ -276,14 +284,18 @@ export default function App() {
 
           <Route path='/sign-up'>
             <Register
-              onSubmit={handleRegister}
+              onSignUp={handleRegister}
+              isSuccess={isSuccess}
+              isLoading={isButtonSubmitLoading}
             />
           </Route>
 
           <Route path='/sign-in'>
 
             <Login 
-              onSubmit={handleLogin}
+              onSignIn={handleLogin}
+              isLoggedIn={isLoggedIn}
+              isLoading={isButtonSubmitLoading}
             />
           </Route>
 
@@ -329,7 +341,7 @@ export default function App() {
         />
 
         <InfoToolTip
-          isOpen={isSignUpPopupOpen}
+          isOpen={isToolTipPopupOpen}
           isSuccess={isSuccess}
           onClose={closeAllPopups}
         />

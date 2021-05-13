@@ -6,7 +6,7 @@
 }
 
 @media screen and (max-width: 550px) {
-  .header__link{
+  .header__link {
     font-size: 14px;
     line-height: 17px;
     margin-top: 6px;

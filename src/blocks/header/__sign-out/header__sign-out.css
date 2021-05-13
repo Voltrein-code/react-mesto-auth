@@ -9,3 +9,10 @@
   margin-left: 24px;
   padding: 0;
 }
+
+@media screen and (max-width: 550px){
+  .header__sign-out {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+}

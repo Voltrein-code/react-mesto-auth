@@ -2,3 +2,11 @@
   display: flex;
   flex-direction: row;
 }
+
+@media screen and (max-width: 550px){
+  .header__menu {
+    padding-top: 28px;
+    flex-direction: column;
+    display: none;
+  }
+}
