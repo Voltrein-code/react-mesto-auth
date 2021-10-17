@@ -11,9 +11,10 @@
 
 Это веб-приложение написано на React. 
 
-**Ссылка на проект в gh-pages: [Место React](https://voltrein-code.github.io/mesto-react-auth/)**
+**Ссылка на проект в gh-pages: [Место React](https://voltrein-code.github.io/sign-in)**
 
 ![Watch the video](./public/preview.gif)
+
 
 
 ## 📖 Задача
